@@ -34,14 +34,23 @@ la $a0, seeding_random_number_generator_prompt
 li $v0, 4
 syscall
 
+#for i = 4; i>0; i--
 addi $t0, $zero, 4
 
 xorshift_seed_loop:
+
+#read a number
 la $a0, enter_a_number_prompt
 li $v0, 4
 syscall
 li $v0, 5
+
+#i--
 addi $t0, $zero, -1
+
+#store
 sw $v0, 0($t0)
+
+#branch if less than 0
 bltz $t0, xorshift_seed_loop
 j $ra
