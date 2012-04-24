@@ -54,3 +54,31 @@ sw $v0, 0($t0)
 #branch if less than 0
 bltz $t0, xorshift_seed_loop
 j $ra
+
+
+promptEntrance:
+  	.asciiz "The last thing you remember, you were standing on the street and looking at the abandoned mansion on top of the hill. Then there was a blinding flash, and you now find yourself standing in the most spacious entry way you have ever seen. A six foot tall crystal chandelier hangs from the ceiling, and several sculptures stand atop pedestals around the room. Two grand staircases, each about six feet wide, wind their way up to the second floor. You see doors to your left and right, as well as one directly ahead of you between the two staircases. The double doors leading into the house loom behind you, and as you start towards them, you hear a lock snap shut. You hear a horrible wailing coming from the balcony above.\n" 
+promptEntranceChoice:
+		.asciiz "To enter the parlor, type 1. To enter the Dining Room, type 2. To go upstairs, type 3.\n"
+promptDining:
+		.asciiz "As you enter the dining room, you are taken aback by what you see. Although this house is supposedly abandoned, there is a veritable feast laid before you on the massive table in the center of the room. Dozens of dishes are present, and each one looks more delicious than the last. In the center of the table is a massive turkey. While all of the places look as if they have just been set, a single chair has been pulled away from the table, as if it were expecting someone to sit down at any moment...\n"
+promptDiningChoice:
+		.asciiz "To sit down at the chair, enter SIT. To eat some of the food, type 1. To return to the entrance hall, type 2.\n"
+promptChairDeath:
+		.asciiz "You approach the table and sit in the offered chair. As you do, figures appear in the other chairs. It seems you are the guest of honor at this dinner, and they have been waiting for your arrival. As you reach over and accept an offered glass of wine, you exchange niceties with the assembled guests. You make a joke, and they erupt into raucous laughter. You are having such a good time that you fail to notice that you have stopped breathing. It's a good thing you are enjoying yourself, as you will be attending this dinner for eternity...END\n"
+promptEatSomething:
+		.asciiz "You reach down and pick up a roll from the table, and take a bite. As soon as you do, you feel the soft bread turn to ash in your mouth. You decide it's probably best not to try anything else. With one last glance back, you exit the room.\n"
+promptLeaveDining:
+		.asciiz "To enter the parlor, type 1. To go upstairs, type 2.\n"
+promptParlor:
+		.asciiz "Before you opened the door, you could hear the faint sounds of a television coming from the room beyond. As you enter, you see the television on the other side of the room, playing a black and white movie that you've never seen before. You notice that the TV is not plugged into the wall outlet. The rocking chair that sits facing the screen has its back to you, but you can see that it is distinctly rocking back and forth.\n"
+promptParlorChoice:
+		.asciiz "To investigate the rocking chair, type 1. To get out of here as fast as you possibly can, enter 2.\n"
+promptChair:
+		.asciiz "You approach the chair, and you get just close enough to see bones on the armrest before the seated figure rises. A decrepit skeleton slowly lifts itself from its seat and faces you. There is a short pause, followed swiftly by a scream so loud the light fixtures around the room shake. The fleshless being slowly advances toward you.\n"
+promptChairChoice:
+		.asciiz "To attack the skeleton, enter 1. To run away, enter 2.\n"
+promptAttack:
+		.asciiz "You ready yourself against the skeleton's attack, but you see now that it seems to be having a very hard time moving. You cautiosly approach and, feeling bolder, give the skeleton a light shove. It falls to the floor in a heap, loose bones scattering in all directions. As you congratulate yourself on your victory, you notice a glint of metal coming from inside the skull atop the pile at your feet. You reach in a grasp a key. You slide it into your pocket, hoping it will be of use later. You try the main doors, and when the key fails to open them, you decide to try the second floor.\n"
+promptRunUpstairs:
+		.asciiz "You dash through the entrance hall and up the staircase, all the while realizing that, while the wailing coming from above seems to be getting louder, it is coming from the third floor. You emerge onto a balcony that traveles along the edges of the high cieling of the entrance hall. You can see a staircase leading up, as well as doorways that open into what looks like a bathrom, playroom and child's room.\n"
