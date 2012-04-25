@@ -82,3 +82,21 @@ promptAttack:
 		.asciiz "You ready yourself against the skeleton's attack, but you see now that it seems to be having a very hard time moving. You cautiosly approach and, feeling bolder, give the skeleton a light shove. It falls to the floor in a heap, loose bones scattering in all directions. As you congratulate yourself on your victory, you notice a glint of metal coming from inside the skull atop the pile at your feet. You reach in a grasp a key. You slide it into your pocket, hoping it will be of use later. You try the main doors, and when the key fails to open them, you decide to try the second floor.\n"
 promptRunUpstairs:
 		.asciiz "You dash through the entrance hall and up the staircase, all the while realizing that, while the wailing coming from above seems to be getting louder, it is coming from the third floor. You emerge onto a balcony that traveles along the edges of the high cieling of the entrance hall. You can see a staircase leading up, as well as doorways that open into what looks like a bathrom, playroom and child's room.\n"
+promptBathroom:
+		.asciiz "You open the door, and as a wave a nausea rolls over you, you empty your stomach onto the floor. Blood has been splashed everywhere, so much that it has completely covered the bathtub at the end of the room. Vile epithets are scratched into the walls, many of which are cursing someone named James. Some of the slashes in the wall appear to be leaking even more blood into the room.\n"
+promptBathroomLeave:
+		.asciiz "You know you need to leave or you will be sick again. To go to the child's room, enter 1. To go to the playroom, type 2. To travel upstairs, enter 3.\n"
+promptChildRoom:
+		.asciiz "You carefully push open the door and are greeted with the sight of a bed covered in stuffed animals. The room looks as if no one has been in it for years, but as you look down you notice that there is a stuffed rabbit at your feet.\n"
+promptChildChoice:
+		.asciiz "To take the rabbit with you, enter 1. To let it lie there, type 2.\n"
+promptChildChoice2:
+		.asciiz "To enter the playroom, enter 1. To go upstairs, type 2.\n"
+promptPlayroom:
+		.asciiz "Following the sound of quiet sobbing, you open the door. Inside you see a little girl, sitting at a small table and clutching a teddy bear. She appears to be crying, but it is impossible to tell, as you can see right through her. She notices you standing there and says, "Hello. Will you play with me? No one wants to play with me any more.\n"
+promptNoToy:
+		.asciiz "Before you can react, you see the room start to grow, and feel your body stiffening. After several seconds, your limp form lies on the ground, button eyes staring blankly ahead. The last guest has arrived, and the tea party can begin...END\n"
+promptToy:
+		.asciiz "She spies the stuffed rabbit you have and giggles. You entertain the ghost girl by sitting down for a tea party with the rabbit. After a few minutes of playtime, she asks you if you've seen her mommy around. "Mommy got really mad one night, and she hurt me and my brother. I know she's sorry, and I want to play with her more, but she won't come down. Could you ask her to?" She hands you her teddy bear and continues playing with the rabbit. You set off up the stairs in an attempt to find her mother.\n"
+prompt3rdFloor:
+		.asciiz "As you climb the stairs to the third level of the house, the screaming and shrieking you have been hearing intensifies. You see a closed door in front of you, as well as what looks like a guest room. The master bedroom looms at the end of the hallway.\n"
