@@ -1,10 +1,14 @@
-.data
+.noi_first_disk_promptdata
 hanoi_print_state_msg: .asciiz "the current game state is:\n"
 hanoi_done_msg: .asciiz "done\n"
 hanoi_newline: .asciiz "\n"
 hanoi_space: .asciiz " "
 hanoi_bar: .asciiz "|"
 hanoi_disk: .asciiz "_"
+hanoi_first_column_prompt: .asciiz "Which column would you like to pick up a disk from\n1.Left\n2.Middle\n3.Right\n4.Quit\n"
+hanoi_second_column_prompt: .asciiz "Which column would you like to put the disk onto\n1.Left\n2.Middle\n3.Right\n4.Quit\n"
+hanoi_error_msg: .asciiz "An error occured in Towers of Hanoi game, quitting.\n"
+hanoi_success_msg:.asciiz "Congradulations, you win!\n"
 .text
 .globl main
 #towers of hanoi game
@@ -19,9 +23,9 @@ towers_of_hanoi:
 #t9 = return pointer
 addi $t9, $ra, 0
 jal hanoi_set_init_state #initialize hanoi game
-
 #t0 will be 0 if still going, 1 if failure and 2 if success
 try_hanoi:
+j $ra
 jal hanoi_show
 jal hanoi_iteration  #let the user make a move
 jal hanoi_print_state
@@ -55,7 +59,7 @@ syscall
 j $ra
 
 hanoi_test_and_print:
-addi $s7, $ra, 0
+addi $s6, $ra, 0
 #if $t5 = 1, then top bar
 addi $t4, $zero, 1
 bne $t5, $t4, hanoi_test_mid
@@ -148,7 +152,7 @@ jal hanoi_print_disk
 j hanoi_done_test_and_print
 
 hanoi_done_test_and_print:
-addi $ra, $s7, 0
+addi $ra, $s6, 0
 j $ra
 
 hanoi_show:
@@ -242,9 +246,66 @@ syscall
 la $a0, hanoi_newline
 li $v0, 4
 syscall
+j $ra
 
 hanoi_iteration:
+j hanoi_iteration_error
+addi $t8, $ra, 0
+la $a0, hanoi_first_column_prompt
+li $v0, 4
+syscall
+
+li $v0, 5
+syscall
+
+addi $t5, $v0, 0
+addi $t4, $zero, 4
+beq $t4, $t5, hanoi_iteration_quit
+addi $t4, $zero, 3
+bne $t3, $t4, hanoi_iteration_try_2
+addi $s5, $t3, 0
+j hanoi_iteration_test_bar1
+
+hanoi_iteration_try_2: 
+addi $t4, $zero, 2
+bne $t3, $t4, hanoi_iteration_try_1
+addi $s5, $t2, 0
+j hanoi_iteration_test_bar1
+
+hanoi_iteration_try_1: 
+addi $t4, $zero, 1
+bne $t3, $t4, hanoi_iteration_error
+addi $s5, $t2, 0
+j hanoi_iteration_test_bar1
+
+hanoi_iteration_test_bar1:
+addi $t4, $zero, 0
+beq $t4, $s5, hanoi_next_iteration
+#TODO TEST THE MOVE AND DO MOVE
+j hanoi_success
+
+hanoi_iteration_error:
+la $a0, hanoi_error_msg
+li $v0, 4
+syscall
+j hanoi_iteration_quit
+
+hanoi_success:
+la $a0, hanoi_success_msg
+li $v0, 4
+syscall
 addi $t0, $zero, 2
+addi $ra, $t8, 0
+j $ra
+
+hanoi_iteration_quit:
+addi $t0, $zero, 1
+addi $ra, $t8, 0
+j $ra
+
+hanoi_next_iteration:
+addi $t0, $zero, 0
+addi $ra, $t8, 0
 j $ra
 
 main:
