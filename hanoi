@@ -279,7 +279,8 @@ j hanoi_iteration_test_bar1
 hanoi_iteration_test_bar1:
 addi $t4, $zero, 0
 beq $t4, $s5, hanoi_next_iteration
-#TODO TEST THE MOVE AND DO MOVE
+
+
 j hanoi_success
 
 hanoi_iteration_error:
