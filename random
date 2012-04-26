@@ -55,6 +55,16 @@ sw $v0, 0($t0)
 bltz $t0, xorshift_seed_loop
 j $ra
 
+#towers of hanoi game
+#overwrites most of the t memory
+towers_of_hanoi:
+
+#set initial position of the rings
+#  _|_   |   |
+# __|__  |   |
+#___|___ |   |
+jal hanoi_set_init_state
+
 
 promptEntrance:
   	.asciiz "The last thing you remember, you were standing on the street and looking at the abandoned mansion on top of the hill. Then there was a blinding flash, and you now find yourself standing in the most spacious entry way you have ever seen. A six foot tall crystal chandelier hangs from the ceiling, and several sculptures stand atop pedestals around the room. Two grand staircases, each about six feet wide, wind their way up to the second floor. You see doors to your left and right, as well as one directly ahead of you between the two staircases. The double doors leading into the house loom behind you, and as you start towards them, you hear a lock snap shut. You hear a horrible wailing coming from the balcony above.\n" 
