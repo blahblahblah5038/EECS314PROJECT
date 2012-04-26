@@ -63,22 +63,25 @@ bne $t5, $t4, hanoi_test_mid
 addi $t4, $zero, 1
 bne $t4,$t6, hanoi_test_top_center
 #if $t6 = 1 then left
-jal hanoi_print_disk
-j hanoi_done_test_and_print
+andi $t4, $t1, 4
+beq $t4, $zero, hanoi_test_empty
+j hanoi_test_confirm
 
 hanoi_test_top_center:
 #if $t6 = 2 then center
 addi $t4, $zero, 2
 bne $t4,$t6 hanoi_test_top_right
-jal hanoi_print_disk
-j hanoi_done_test_and_print
+andi $t4, $t2, 4
+beq $t4, $zero, hanoi_test_empty
+j hanoi_test_confirm
 
 hanoi_test_top_right:
 #else if $t6 = 3 then right
 addi $t4, $zero, 3
 bne $t4,$t6 hanoi_test_empty
-jal hanoi_print_disk
-j hanoi_done_test_and_print
+andi $t4, $t3, 4
+beq $t4, $zero, hanoi_test_empty
+j hanoi_test_confirm
 
 hanoi_test_mid:
 #if $t5 = 2, then mid bar
@@ -88,22 +91,25 @@ bne $t5, $t4, hanoi_test_bot
 addi $t4, $zero, 1
 bne $t4,$t6, hanoi_test_mid_center
 #if $t6 = 1 then left
-jal hanoi_print_disk
-j hanoi_done_test_and_print
+andi $t4, $t1, 2
+beq $t4, $zero, hanoi_test_empty
+j hanoi_test_confirm
 
 hanoi_test_mid_center:
 #if $t6 = 2 then center
 addi $t4, $zero, 2
 bne $t4,$t6 hanoi_test_mid_right
-jal hanoi_print_disk
-j hanoi_done_test_and_print
+andi $t4, $t2, 2
+beq $t4, $zero, hanoi_test_empty
+j hanoi_test_confirm
 
 hanoi_test_mid_right:
 #else if $t6 = 3 then right
 addi $t4, $zero, 3
 bne $t4,$t6 hanoi_test_empty
-jal hanoi_print_disk
-j hanoi_done_test_and_print
+andi $t4, $t2, 2
+beq $t4, $zero, hanoi_test_empty
+j hanoi_test_confirm
 
 hanoi_test_bot:
 #if $t5 = 3, then bottom bar
@@ -113,25 +119,33 @@ bne $t5, $t4, hanoi_test_mid
 addi $t4, $zero, 1
 bne $t4,$t6, hanoi_test_bot_center
 #if $t6 = 1 then left
-jal hanoi_print_disk
-j hanoi_done_test_and_print
+andi $t4, $t1, 1
+beq $t4, $zero, hanoi_test_empty
+j hanoi_test_confirm
 
 hanoi_test_bot_center:
 #if $t6 = 2 then center
 addi $t4, $zero, 2
 bne $t4,$t6 hanoi_test_bot_right
-jal hanoi_print_disk
-j hanoi_done_test_and_print
+andi $t4, $t2, 1
+beq $t4, $zero, hanoi_test_empty
+j hanoi_test_confirm
 
 hanoi_test_bot_right:
 #else if $t6 = 3 then right
 addi $t4, $zero, 3
 bne $t4,$t6 hanoi_test_empty
-jal hanoi_print_disk
-j hanoi_done_test_and_print
+andi $t4, $t3, 1
+beq $t4, $zero, hanoi_test_empty
+j hanoi_test_confirm
 
 hanoi_test_empty:
 jal hanoi_print_space
+j hanoi_done_test_and_print
+
+hanoi_test_confirm:
+jal hanoi_print_disk
+j hanoi_done_test_and_print
 
 hanoi_done_test_and_print:
 addi $ra, $s7, 0
@@ -203,8 +217,8 @@ addi $ra, $t7, 0
 j $ra
 
 hanoi_set_init_state:
-addi $t1, $zero, 7
-addi $t2, $zero, 0
+addi $t1, $zero, 0
+addi $t2, $zero, 2
 addi $t3, $zero, 0
 j $ra
 
