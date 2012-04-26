@@ -107,7 +107,7 @@ hanoi_test_mid_right:
 #else if $t6 = 3 then right
 addi $t4, $zero, 3
 bne $t4,$t6 hanoi_test_empty
-andi $t4, $t2, 2
+andi $t4, $t3, 2
 beq $t4, $zero, hanoi_test_empty
 j hanoi_test_confirm
 
@@ -218,8 +218,8 @@ j $ra
 
 hanoi_set_init_state:
 addi $t1, $zero, 0
-addi $t2, $zero, 2
-addi $t3, $zero, 0
+addi $t2, $zero, 0
+addi $t3, $zero, 7
 j $ra
 
 hanoi_print_state:
