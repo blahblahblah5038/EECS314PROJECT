@@ -1,0 +1,242 @@
+.data
+hanoi_print_state_msg: .asciiz "the current game state is:\n"
+hanoi_done_msg: .asciiz "done\n"
+hanoi_newline: .asciiz "\n"
+hanoi_space: .asciiz " "
+hanoi_bar: .asciiz "|"
+hanoi_disk: .asciiz "_"
+.text
+.globl main
+#towers of hanoi game
+#overwrites most of the t memory
+towers_of_hanoi:
+
+#set initial position of the rings
+#  _|_   |   |
+# __|__  |   |
+#___|___ |   |
+
+#t9 = return pointer
+addi $t9, $ra, 0
+jal hanoi_set_init_state #initialize hanoi game
+
+#t0 will be 0 if still going, 1 if failure and 2 if success
+try_hanoi:
+jal hanoi_show
+jal hanoi_iteration  #let the user make a move
+jal hanoi_print_state
+addi $t4, $zero, 0
+beq $t0, $t4, try_hanoi
+addi $ra, $t9, 0
+j $ra
+
+hanoi_print_newline:
+la $a0, hanoi_newline
+li $v0, 4
+syscall
+j $ra
+
+hanoi_print_space:
+la $a0, hanoi_space
+li $v0, 4
+syscall
+j $ra
+
+hanoi_print_bar:
+la $a0, hanoi_bar
+li $v0, 4
+syscall
+j $ra
+
+hanoi_print_disk:
+la $a0, hanoi_disk
+li $v0, 4
+syscall
+j $ra
+
+hanoi_test_and_print:
+addi $s7, $ra, 0
+#if $t5 = 1, then top bar
+addi $t4, $zero, 1
+bne $t5, $t4, hanoi_test_mid
+
+addi $t4, $zero, 1
+bne $t4,$t6, hanoi_test_top_center
+#if $t6 = 1 then left
+jal hanoi_print_disk
+j hanoi_done_test_and_print
+
+hanoi_test_top_center:
+#if $t6 = 2 then center
+addi $t4, $zero, 2
+bne $t4,$t6 hanoi_test_top_right
+jal hanoi_print_disk
+j hanoi_done_test_and_print
+
+hanoi_test_top_right:
+#else if $t6 = 3 then right
+addi $t4, $zero, 3
+bne $t4,$t6 hanoi_test_empty
+jal hanoi_print_disk
+j hanoi_done_test_and_print
+
+hanoi_test_mid:
+#if $t5 = 2, then mid bar
+addi $t4, $zero, 2
+bne $t5, $t4, hanoi_test_bot
+
+addi $t4, $zero, 1
+bne $t4,$t6, hanoi_test_mid_center
+#if $t6 = 1 then left
+jal hanoi_print_disk
+j hanoi_done_test_and_print
+
+hanoi_test_mid_center:
+#if $t6 = 2 then center
+addi $t4, $zero, 2
+bne $t4,$t6 hanoi_test_mid_right
+jal hanoi_print_disk
+j hanoi_done_test_and_print
+
+hanoi_test_mid_right:
+#else if $t6 = 3 then right
+addi $t4, $zero, 3
+bne $t4,$t6 hanoi_test_empty
+jal hanoi_print_disk
+j hanoi_done_test_and_print
+
+hanoi_test_bot:
+#if $t5 = 3, then bottom bar
+addi $t4, $zero, 3
+bne $t5, $t4, hanoi_test_mid
+
+addi $t4, $zero, 1
+bne $t4,$t6, hanoi_test_bot_center
+#if $t6 = 1 then left
+jal hanoi_print_disk
+j hanoi_done_test_and_print
+
+hanoi_test_bot_center:
+#if $t6 = 2 then center
+addi $t4, $zero, 2
+bne $t4,$t6 hanoi_test_bot_right
+jal hanoi_print_disk
+j hanoi_done_test_and_print
+
+hanoi_test_bot_right:
+#else if $t6 = 3 then right
+addi $t4, $zero, 3
+bne $t4,$t6 hanoi_test_empty
+jal hanoi_print_disk
+j hanoi_done_test_and_print
+
+hanoi_test_empty:
+jal hanoi_print_space
+
+hanoi_done_test_and_print:
+addi $ra, $s7, 0
+j $ra
+
+hanoi_show:
+addi $t8, $ra, 0
+addi $t5, $zero, 1
+addi $t6, $zero, 1
+jal hanoi_print_top_bar
+addi $t6, $zero, 2
+jal hanoi_print_top_bar
+addi $t6, $zero, 3
+jal hanoi_print_top_bar
+jal hanoi_print_newline
+addi $t5, $zero, 2
+addi $t6, $zero, 1
+jal hanoi_print_mid_bar
+addi $t6, $zero, 2
+jal hanoi_print_mid_bar
+addi $t6, $zero, 3
+jal hanoi_print_mid_bar
+jal hanoi_print_newline
+addi $t5, $zero, 3
+addi $t6, $zero, 1
+jal hanoi_print_bot_bar
+addi $t6, $zero, 2
+jal hanoi_print_bot_bar
+addi $t6, $zero, 3
+jal hanoi_print_bot_bar
+jal hanoi_print_newline
+addi $ra, $t8, 0
+j $ra
+
+hanoi_print_top_bar:
+addi $t7, $ra, 0
+jal hanoi_print_space
+jal hanoi_print_space
+jal hanoi_test_and_print
+jal hanoi_print_bar
+jal hanoi_test_and_print
+jal hanoi_print_space
+jal hanoi_print_space
+addi $ra, $t7, 0
+j $ra
+
+hanoi_print_mid_bar:
+addi $t7, $ra, 0
+jal hanoi_print_space
+jal hanoi_test_and_print
+jal hanoi_test_and_print
+jal hanoi_print_bar
+jal hanoi_test_and_print
+jal hanoi_test_and_print
+jal hanoi_print_space
+addi $ra, $t7, 0
+j $ra
+
+hanoi_print_bot_bar:
+addi $t7, $ra, 0
+jal hanoi_test_and_print
+jal hanoi_test_and_print
+jal hanoi_test_and_print
+jal hanoi_print_bar
+jal hanoi_test_and_print
+jal hanoi_test_and_print
+jal hanoi_test_and_print
+addi $ra, $t7, 0
+j $ra
+
+hanoi_set_init_state:
+addi $t1, $zero, 7
+addi $t2, $zero, 0
+addi $t3, $zero, 0
+j $ra
+
+hanoi_print_state:
+la $a0, hanoi_print_state_msg
+li $v0, 4
+syscall
+
+addi $a0, $t1, 0
+li $v0, 1
+syscall
+
+addi $a0, $t2, 0
+li $v0, 1
+syscall
+
+addi $a0, $t3, 0
+li $v0, 1
+syscall
+
+la $a0, hanoi_newline
+li $v0, 4
+syscall
+
+hanoi_iteration:
+addi $t0, $zero, 2
+j $ra
+
+main:
+jal towers_of_hanoi
+la $a0, hanoi_done_msg
+li $v0, 4
+syscall
+li $v0, 10
+syscall
