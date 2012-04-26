@@ -9,7 +9,7 @@ hanoi_first_column_prompt: .asciiz "Which column would you like to pick up a dis
 hanoi_second_column_prompt: .asciiz "Which column would you like to put the disk onto\n1.Left\n2.Middle\n3.Right\n4.Quit\n"
 hanoi_error_msg: .asciiz "An error occured in Towers of Hanoi game, quitting.\n"
 hanoi_success_msg:.asciiz "Congradulations, you win!\n"
-hanoi_rule_violation_msg: .asciiz "That is an invalid move, try again\n"
+hanoi_rule_violation_msg: .asciiz "\nThat is an invalid move, try again\n\n"
 .text
 .globl main
 #towers of hanoi game
@@ -269,11 +269,11 @@ j hanoi_iteration_test_bar1
 
 hanoi_iteration_try_2: 
 addi $t4, $zero, 2
-bne $t4, $t5, hanoi_iteration_try_1
+bne $t4, $t5, hanoi_iteration_try_3
 addi $s5, $t2, 0
 j hanoi_iteration_test_bar1
 
-hanoi_iteration_try_1: 
+hanoi_iteration_try_3: 
 addi $t4, $zero, 1
 bne $t4, $t5, hanoi_iteration_error
 addi $s5, $t1, 0
@@ -298,28 +298,66 @@ beq $t4, $t6, hanoi_iteration_quit
 addi $t4, $zero, 3
 bne $t6, $t4, hanoi_iteration_try_2_2
 addi $s6, $t3, 0
-j hanoi_iteration_test_bar1_2
+j hanoi_iteration_test_bar2
 
 hanoi_iteration_try_2_2: 
 addi $t4, $zero, 2
-bne $t6, $t4, hanoi_iteration_try_1_2
+bne $t6, $t4, hanoi_iteration_try_3_2
 addi $s6, $t2, 0
-j hanoi_iteration_test_bar1_2
+j hanoi_iteration_test_bar2
 
-hanoi_iteration_try_1_2: 
+hanoi_iteration_try_3_2: 
 addi $t4, $zero, 1
 bne $t6, $t4, hanoi_iteration_error
 addi $s6, $t2, 0
-j hanoi_iteration_test_bar1_2
+j hanoi_iteration_test_bar2
 
-hanoi_iteration_test_bar1_2:
+hanoi_iteration_test_bar2:
 addi $t4, $zero, 0
 beq $t4, $s6, hanoi_rule_violation
 
+sub $t4, $s5, $s6
+blez $t4, hanoi_rule_violation
+
+andi $t4, $s5, 4
+bgtz $t4, hanoi_bit_found
+andi $t4, $s5, 2
+bgtz $t4, hanoi_bit_found
+andi $t4, $s5, 1
+bgtz $t4, hanoi_bit_found
+j hanoi_iteration_error
+
+hanoi_bit_found:
+xor $s5, $s5, $t4
+or $s6, $s6, $t4
+
+addi $t4, $zero, 3
+bne $t4, $t6, hanoi_try_apply_d2
+addi $t3, $s6, 0
+j hanoi_assigned_move
+
+hanoi_try_apply_d2:
+addi $t4, $zero, 2
+bne $t4, $t6, hanoi_try_apply_d1
+addi $t2, $s6, 0
+j hanoi_assigned_move
+
+hanoi_try_apply_d1:
+addi $t4, $zero, 1
+bne $t4, $t6, hanoi_iteration_error
+addi $t1, $s6, 0
+j hanoi_assigned_move
+
+hanoi_assigned_move:
+addi $t4, $zero, 0
+bne $t1, $t4, hanoi_next_iteration
+bne $t2, $t4, hanoi_next_iteration
+addi $t4, $zero, 7
+bne $t3, $t4, hanoi_next_iteration
+j hanoi_success
 
 ###################################
 
-j hanoi_success
 
 hanoi_iteration_error:
 la $a0, hanoi_error_msg
