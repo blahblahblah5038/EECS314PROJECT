@@ -9,6 +9,7 @@ hanoi_first_column_prompt: .asciiz "Which column would you like to pick up a dis
 hanoi_second_column_prompt: .asciiz "Which column would you like to put the disk onto\n1.Left\n2.Middle\n3.Right\n4.Quit\n"
 hanoi_error_msg: .asciiz "An error occured in Towers of Hanoi game, quitting.\n"
 hanoi_success_msg:.asciiz "Congradulations, you win!\n"
+hanoi_rule_violation_msg: .asciiz "That is an invalid move, try again\n"
 .text
 .globl main
 #towers of hanoi game
@@ -16,9 +17,9 @@ hanoi_success_msg:.asciiz "Congradulations, you win!\n"
 towers_of_hanoi:
 
 #set initial position of the rings
-#  _|_   |   |
-# __|__  |   |
-#___|___ |   |
+#  _|_     |      |
+# __|__    |      |
+#___|___   |      |
 
 #t9 = return pointer
 addi $t9, $ra, 0
@@ -248,6 +249,8 @@ syscall
 j $ra
 
 hanoi_iteration:
+##################################
+
 addi $t8, $ra, 0
 la $a0, hanoi_first_column_prompt
 li $v0, 4
@@ -260,26 +263,61 @@ addi $t5, $v0, 0
 addi $t4, $zero, 4
 beq $t4, $t5, hanoi_iteration_quit
 addi $t4, $zero, 3
-bne $t3, $t4, hanoi_iteration_try_2
+bne $t4, $t5, hanoi_iteration_try_2
 addi $s5, $t3, 0
 j hanoi_iteration_test_bar1
 
 hanoi_iteration_try_2: 
 addi $t4, $zero, 2
-bne $t3, $t4, hanoi_iteration_try_1
+bne $t4, $t5, hanoi_iteration_try_1
 addi $s5, $t2, 0
 j hanoi_iteration_test_bar1
 
 hanoi_iteration_try_1: 
 addi $t4, $zero, 1
-bne $t3, $t4, hanoi_iteration_error
-addi $s5, $t2, 0
+bne $t4, $t5, hanoi_iteration_error
+addi $s5, $t1, 0
 j hanoi_iteration_test_bar1
 
 hanoi_iteration_test_bar1:
 addi $t4, $zero, 0
-beq $t4, $s5, hanoi_next_iteration
+beq $t4, $s5, hanoi_rule_violation
 
+#################################
+addi $t8, $ra, 0
+la $a0, hanoi_second_column_prompt
+li $v0, 4
+syscall
+
+li $v0, 5
+syscall
+
+addi $t6, $v0, 0
+addi $t4, $zero, 4
+beq $t4, $t6, hanoi_iteration_quit
+addi $t4, $zero, 3
+bne $t6, $t4, hanoi_iteration_try_2_2
+addi $s6, $t3, 0
+j hanoi_iteration_test_bar1_2
+
+hanoi_iteration_try_2_2: 
+addi $t4, $zero, 2
+bne $t6, $t4, hanoi_iteration_try_1_2
+addi $s6, $t2, 0
+j hanoi_iteration_test_bar1_2
+
+hanoi_iteration_try_1_2: 
+addi $t4, $zero, 1
+bne $t6, $t4, hanoi_iteration_error
+addi $s6, $t2, 0
+j hanoi_iteration_test_bar1_2
+
+hanoi_iteration_test_bar1_2:
+addi $t4, $zero, 0
+beq $t4, $s6, hanoi_rule_violation
+
+
+###################################
 
 j hanoi_success
 
@@ -300,6 +338,14 @@ j $ra
 
 hanoi_iteration_quit:
 addi $t0, $zero, 1
+addi $ra, $t8, 0
+j $ra
+
+hanoi_rule_violation:
+la $a0, hanoi_rule_violation_msg
+li $v0, 4
+syscall
+addi $t0, $zero, 0
 addi $ra, $t8, 0
 j $ra
 
