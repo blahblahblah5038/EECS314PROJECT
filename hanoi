@@ -217,9 +217,9 @@ addi $ra, $t7, 0
 j $ra
 
 hanoi_set_init_state:
-addi $t1, $zero, 0
+addi $t1, $zero, 7
 addi $t2, $zero, 0
-addi $t3, $zero, 7
+addi $t3, $zero, 0
 j $ra
 
 hanoi_print_state:
