@@ -28,7 +28,7 @@ jal hanoi_set_init_state #initialize hanoi game
 try_hanoi:
 jal hanoi_show
 jal hanoi_iteration  #let the user make a move
-jal hanoi_print_state
+#jal hanoi_print_state
 addi $t4, $zero, 0
 beq $t0, $t4, try_hanoi
 addi $ra, $t9, 0
@@ -312,8 +312,8 @@ addi $s6, $t1, 0
 j hanoi_iteration_test_bar2
 
 hanoi_iteration_test_bar2:
-addi $t4, $zero, 0
-beq $t4, $s6, hanoi_rule_violation
+#addi $t4, $zero, 0
+#beq $t4, $s6, hanoi_rule_violation
 
 sub $t4, $s5, $s6
 blez $t4, hanoi_rule_violation
@@ -348,6 +348,24 @@ addi $t1, $s6, 0
 j hanoi_assigned_move
 
 hanoi_assigned_move:
+addi $t4, $zero, 3
+bne $t4, $t5, hanoi_try_unapply_d2
+addi $t3, $s5, 0
+j hanoi_unassigned_move
+
+hanoi_try_unapply_d2:
+addi $t4, $zero, 2
+bne $t4, $t5, hanoi_try_unapply_d1
+addi $t2, $s5, 0
+j hanoi_unassigned_move
+
+hanoi_try_unapply_d1:
+addi $t4, $zero, 1
+bne $t4, $t5, hanoi_iteration_error
+addi $t1, $s5, 0
+j hanoi_unassigned_move
+
+hanoi_unassigned_move:
 addi $t4, $zero, 0
 bne $t1, $t4, hanoi_next_iteration
 bne $t2, $t4, hanoi_next_iteration
@@ -393,6 +411,7 @@ j $ra
 
 main:
 jal towers_of_hanoi
+jal hanoi_show
 la $a0, hanoi_done_msg
 li $v0, 4
 syscall

@@ -1,8 +1,13 @@
+.data
+seeding_random_number_generator_prompt: .asciiz "Seeding the random number generator:\n"
+enter_a_number_prompt: .asciiz "Please enter a number:\n"
+.text
+.globl main
 #xorshift random number generator
 #see Marsaglia, George (July 2003). "Xorshift RNGs". Journal of Statistical Software Vol. 8 (Issue  14), or the wikipedia page for xorshift
 #puts a semirandom unsigned int into t8
 get_random_uint_in_t8:
-lw $t0, 0($s8)
+lw $t0, 0($s7)
 
 #t is $t8
 lw $t1, 12($t0) #w
@@ -28,7 +33,7 @@ addi $a0, $zero, 16 #sizeof(uint)*4
 li $v0, 9
 syscall
 
-sw $v0, 0($s8) #record the locations of w,x,y,z
+sw $v0, 0($s7) #record the locations of w,x,y,z
 
 la $a0, seeding_random_number_generator_prompt
 li $v0, 4
@@ -55,4 +60,7 @@ sw $v0, 0($t0)
 bltz $t0, xorshift_seed_loop
 j $ra
 
-
+main:
+jal xorshift_seed_function
+li $v0, 10
+syscall
