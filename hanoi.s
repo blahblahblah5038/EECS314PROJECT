@@ -284,7 +284,6 @@ addi $t4, $zero, 0
 beq $t4, $s5, hanoi_rule_violation
 
 #################################
-addi $t8, $ra, 0
 la $a0, hanoi_second_column_prompt
 li $v0, 4
 syscall
@@ -309,7 +308,7 @@ j hanoi_iteration_test_bar2
 hanoi_iteration_try_3_2: 
 addi $t4, $zero, 1
 bne $t6, $t4, hanoi_iteration_error
-addi $s6, $t2, 0
+addi $s6, $t1, 0
 j hanoi_iteration_test_bar2
 
 hanoi_iteration_test_bar2:
