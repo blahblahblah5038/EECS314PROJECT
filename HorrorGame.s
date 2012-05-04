@@ -150,14 +150,16 @@ promptGameInstr:
 		.asciiz "\nWelcome to Scary House, the Game.  You will have several options for each room you encounter.  To save the game at any point, enter 9.  To load a saved game, enter 8 now.\nGood luck.\n\n"
 promptLoadGame:
 		.asciiz "\nPlease enter game code:\n"
+promptLoadGame2:
+		.asciiz "\nPlease enter game key:\n"
 promptLoadingGame:
 		.asciiz "\nLoading game...\n\n"
 promptSaveGame:
 		.asciiz "\nSaving game...\nGame code:\n"
+promptSaveGame2:
+		.asciiz "\nGame key:\n"
 promptSavingGame:
-		.asciiz "\nPlease write this code down in order to load your game later.\nThanks for playing, come back soon!\n"
-saveGameFile:
-		.asciiz "scaryhouse.game"	# not used
+		.asciiz "\nPlease write this code and key down in order to load your game later.\nThanks for playing, come back soon!\n"
 		
 .globl main
 
@@ -697,22 +699,45 @@ syscall
 
 li $v0, 5
 syscall
-move $t6, $v0	# $t6 is the 'game code'
+move $t6, $v0	# program counter
 
 li $v0, 4
-la $a0, promptLoadGame
+la $a0, promptLoadGame2
 syscall
 
-li $v0, 1
-move $a0, $t6
+li $v0, 5
+syscall
+move $t0, $v0	# inventory code
+
+li $v0, 4
+la $a0, promptLoadingGame
 syscall
 
 # set item registers
-li $t1, 0
-li $t2, 0
-li $t3, 0
-li $t4, 0
-li $t5, 0
+li $t8, 10
+div $t0, $t8
+mflo $t0
+mfhi $t5
+
+li $t8, 10
+div $t0, $t8
+mflo $t0
+mfhi $t4
+
+li $t8, 10
+div $t0, $t8
+mflo $t0
+mfhi $t3
+
+li $t8, 10
+div $t0, $t8
+mflo $t0
+mfhi $t2
+
+li $t8, 10
+div $t0, $t8
+mflo $t0
+mfhi $t1
 
 # go to address specified in program counter
 jr $t6
@@ -725,24 +750,21 @@ li $v0, 4
 la $a0, promptSaveGame
 syscall
 
-li $v0, 1
-move $a0, $ra
-syscall
-
-li $v0, 4
-la $a0, promptSaveGame
-syscall
-
-# skip back $t7 spaces
-addi $t7, $t7, -2	# to account for pipelining
+# skip back $t7 spaces to do all printouts
+addi $t7, $t7, 3 # 2 for pipelining and 1 for line of syscall
 li $t6, 4
 mult $t7, $t6	# 4 bytes/addr
 mflo $t7
 sub $t0, $ra, $t7
 
-# print out 'game code'
+# print out 'game code' - program counter
 li $v0, 1
 move $a0, $t0
+syscall
+
+# print out 'game key' - inventory
+li $v0, 4
+la $a0, promptSaveGame2
 syscall
 
 li $v0, 1
@@ -788,7 +810,7 @@ li $v0,5
 syscall
 move $t0,$v0
 
-li $t7, 14
+li $t7, 15
 addi $t6, $t0, -9
 bgezal $t6, SaveGame
 beq $t0, 1, Chair
@@ -811,7 +833,7 @@ li $v0,5
 syscall
 move $t0,$v0
 
-li $t7, 14
+li $t7, 15
 addi $t6, $t0, -9
 bgezal $t6, SaveGame
 beq $t0, 1, Attack
@@ -846,7 +868,7 @@ li $v0,5
 syscall
 move $t0,$v0
 
-li $t7, 17
+li $t7, 18
 addi $t6, $t0, -9
 bgezal $t6, SaveGame
 beq $t0, 1, ChairDeath
@@ -870,7 +892,7 @@ li $v0,5
 syscall
 move $t0,$v0
 
-li $t7, 14
+li $t7, 15
 addi $t6, $t0, -9
 bgezal $t6, SaveGame
 beq $t0, 1, Parlor
@@ -901,7 +923,7 @@ li $v0,5
 syscall
 move $t0,$v0
 
-li $t7, 14
+li $t7, 15
 addi $t6, $t0, -9
 bgezal $t6, SaveGame
 beq $t0, 1, Parlor
@@ -932,7 +954,7 @@ li $v0,5
 syscall
 move $t0,$v0
 
-li $t7, 20
+li $t7, 21
 addi $t6, $t0, -9
 bgezal $t6, SaveGame
 beq $t0, 1, ThirdFloor
@@ -953,7 +975,7 @@ li $v0,5
 syscall
 move $t0,$v0
 
-li $t7, 11
+li $t7, 12
 addi $t6, $t0, -9
 bgezal $t6, SaveGame
 beq $t0, 3, ThirdFloor
@@ -1002,7 +1024,7 @@ li $v0,5
 syscall
 move $t0,$v0
 
-li $t7, 14
+li $t7, 15
 addi $t6, $t0, -9
 bgezal $t6, SaveGame
 beq $t0, 3, Bathroom
@@ -1055,7 +1077,7 @@ li $v0,5
 syscall
 move $t0,$v0
 
-li $t7, 17
+li $t7, 18
 addi $t6, $t0, -9
 bgezal $t6, SaveGame
 beq $t0, 1, ClosedDoor
@@ -1090,7 +1112,7 @@ li $v0,5
 syscall
 move $t0,$v0
 
-li $t7, 15
+li $t7, 16
 addi $t6, $t0, -9
 bgezal $t6, SaveGame
 beq $t0, 2, GuestRoom
@@ -1113,7 +1135,7 @@ li $v0,5
 syscall
 move $t0,$v0
 
-li $t7, 14
+li $t7, 15
 addi $t6, $t0, -9
 bgezal $t6, SaveGame
 beq $t0, 1, Mirror
@@ -1162,7 +1184,7 @@ li $v0,5
 syscall
 move $t0,$v0
 
-li $t7, 8
+li $t7, 9
 addi $t6, $t0, -9
 bgezal $t6, SaveGame
 beq $t0, 1, usedMirror
