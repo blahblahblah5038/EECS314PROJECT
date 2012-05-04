@@ -44,7 +44,7 @@ addi $a0, $zero, 16 #sizeof(uint)*4
 li $v0, 9
 syscall
 
-sw $v0, 0($s7) #record the locations of w,x,y,z
+addi $s7, $v0, 0 #record the locations of w,x,y,z
 
 la $a0, seeding_random_number_generator_prompt
 li $v0, 4
