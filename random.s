@@ -8,23 +8,34 @@ enter_a_number_prompt: .asciiz "Please enter a number:\n"
 #puts a semirandom unsigned int into t8
 get_random_uint_in_t8:
 lw $t0, 0($s7)
-
+addi $t0, $t0, 12
 #t is $t8
-lw $t1, 12($t0) #w
-lw $t2, 8($t0)  #x 
-lw $t3, 4($t0)  #y
-lw $t4, 0($t0)  #z
+#t0+0 = z
+#t0+4 = y
+#t0+8 = x
+#t0+12 = w
 
-sll  $t8, $t2, 11  #t = x<<11
-xor  $t8, $t8, $t2 #t = t^x
-addi $t2, $t3, 0   #x = y
-addi $t3, $t4, 0   #y = z
-addi $t4, $t1, 0   #z = w
-srl  $t5, $t8, 8   #t>>8
-xor  $t8, $t8, $t5 #t=^(t>>8)
-srl  $t5, $t1, 19  #w>>19
-xor  $t8, $t8, $t5 #t=t^(w>>19)
-xor  $t8, $t8, $t1 #t=t^w
+#t = t8
+#temp1 = t7
+#temp2 = t8
+lw   $t7, 8($t0)
+sll  $t8, $t7, 11  #t = x<<11
+xor  $t8, $t7, $t8 #t = t^x
+lw 	 $t7, 4($t0)#x = y
+sw   $t7, 8($t0)
+lw   $t7, 0($t0)   #y = z
+sw   $t7, 4($t0)
+lw   $t7, 12($t0)#z = w
+sw   $t7, 0($t0)
+srl  $t7, $t8, 8   #t>>8
+xor  $t8, $t8, $t7 #t=^(t>>8)
+lw   $t6, 12($t0)
+srl  $t6, $t6, 19  #w>>19
+xor  $t7, $t6, $t7 #t=t^(w>>19)
+lw   $t6, 12($t0)
+xor  $t7, $t6, $t7 #t=t^w
+sw   $t7, 12($t0)
+addi $t8, $t7, 0
 j $ra
 
 #xorshift's seed
@@ -50,14 +61,21 @@ li $v0, 4
 syscall
 li $v0, 5
 
-#i--
-addi $t0, $zero, -1
+addi $t8, $zero, 4
+mult $t8, $t0
+mflo $t8
+
+add $t8, $s7, $t8
 
 #store
-sw $v0, 0($t0)
+sw $v0, 0($t8)
+
+#i--
+addi $t0, $t0, -1
+
 
 #branch if less than 0
-bltz $t0, xorshift_seed_loop
+blez $t0, xorshift_seed_loop
 j $ra
 
 main:
