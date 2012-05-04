@@ -147,7 +147,7 @@ promptAttackGhost:
 		.asciiz "\nYou take a wild swing at the spirit, and your hand passes harmlessly through her spectral form.\n What did you think would happen if you tried to attack a ghost?\n The last thing you see as the spirit tears you apart is your own limbs being thrown across the room.\n"
 
 promptGameInstr:
-		.asciiz "\nWelcome to [NAME OF GAME HERE].  You will have several options for each room you encounter.  To save the game at any point, enter 9.  To load a saved game, enter 8 now.\nGood luck.\n\n"
+		.asciiz "\nWelcome to Scary House, the Game.  You will have several options for each room you encounter.  To save the game at any point, enter 9.  To load a saved game, enter 8 now.\nGood luck.\n\n"
 promptLoadGame:
 		.asciiz "\nPlease enter game code:\n"
 promptLoadingGame:
