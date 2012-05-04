@@ -1,6 +1,7 @@
 #HW3 Problem 2
 #Cale Harter
 
+# appropriating option 9 to load game and 8 to save it
 
 .data
 
@@ -52,7 +53,7 @@ promptChairChoice2:
 promptAttack:
 		.asciiz "\nYou ready yourself against the skeleton's attack, but you see now that it seems to be having a very hard time moving.\n You cautiosly approach and, feeling bolder, give the skeleton a light shove.\n It falls to the floor in a heap, loose bones scattering in all directions.\n As you congratulate yourself on your victory, you notice a glint of metal coming from inside the skull atop the pile at your feet.\n You reach in and grasp a key. You slide it into your pocket, hoping it will be of use later.\n You try the main doors, and when the key fails to open them, you decide to try the second floor.\n"
 promptRunUpstairs:
-		.asciiz "\nYou head through the entrance hall and up the staircase, realizing that, while the wailing coming from above seems to be getting louder, it is coming from the third floor.\n You emerge onto a balcony that traveles along the edges of the high ceiling of the entrance hall.\n You can see a staircase leading up, as well as doorways that open into what looks like a bathroom, playroom, and child's room.\n"
+		.asciiz "\nYou head through the entrance hall and up the staircase, realizing that, while the wailing coming from above seems to be getting louder, it is coming from the third floor.\n You emerge onto a balcony that travels along the edges of the high ceiling of the entrance hall.\n You can see a staircase leading up, as well as doorways that open into what looks like a bathroom, playroom, and child's room.\n"
 promptUpstairsChoice1:
 			.asciiz "To head to the third floor, enter 1\n"
 promptUpstairsChoice2:
@@ -124,6 +125,19 @@ promptTeddyBear:
 promptAttackGhost:
 		.asciiz "\nYou take a wild swing at the spirit, and your hand passes harmlessly through her spectral form.\n What did you think would happen if you tried to attack a ghost?\n The last thing you see as the spirit tears you apart is your own limbs being thrown across the room.\n"
 
+promptGameInstr:
+		.asciiz "\nWelcome to [NAME OF GAME HERE].  You will have several options for each room you encounter.  To save the game at any point, enter 9.  To load a saved game, enter 8 now.\nGood luck.\n\n"
+promptLoadGame:
+		.asciiz "\nPlease enter game code:\n"
+promptLoadingGame:
+		.asciiz "\nLoading game...\n\n"
+promptSaveGame:
+		.asciiz "\nSaving game...\nGame code:\n"
+promptSavingGame:
+		.asciiz "\nPlease write this code down in order to load your game later.\nThanks for playing, come back soon!\n"
+saveGameFile:
+		.asciiz "scaryhouse.game"	# not used
+		
 .globl main
 
 .text
@@ -131,6 +145,9 @@ promptAttackGhost:
 main:
 
 
+li $v0,4
+la $a0, promptGameInstr
+syscall
 
 li $v0,4
 la $a0, promptEntrance
@@ -155,6 +172,89 @@ move $t0,$v0
 beq $t0, 1, Parlor
 beq $t0, 2, DiningRoom
 beq $t0, 3, Upstairs
+beq $t0, 8, LoadGame
+
+# may want to move this
+LoadGame:
+li $v0, 4
+la $a0, promptLoadGame
+syscall
+
+li $v0, 5
+syscall
+move $t6, $v0	# $t6 is the 'game code'
+
+li $v0, 4
+la $a0, promptLoadGame
+syscall
+
+li $v0, 1
+move $a0, $t6
+syscall
+
+# set item registers
+li $t1, 0
+li $t2, 0
+li $t3, 0
+li $t4, 0
+li $t5, 0
+
+# go to address specified in program counter
+jr $t6
+
+# end load game
+
+# begin save game
+SaveGame:
+li $v0, 4
+la $a0, promptSaveGame
+syscall
+
+li $v0, 1
+move $a0, $ra
+syscall
+
+li $v0, 4
+la $a0, promptSaveGame
+syscall
+
+# skip back $t7 spaces
+addi $t7, $t7, -2	# to account for pipelining
+li $t6, 4
+mult $t7, $t6	# 4 bytes/addr
+mflo $t7
+sub $t0, $ra, $t7
+
+# print out 'game code'
+li $v0, 1
+move $a0, $t0
+syscall
+
+li $v0, 1
+move $a0, $t1
+syscall
+
+li $v0, 1
+move $a0, $t2
+syscall
+
+li $v0, 1
+move $a0, $t3
+syscall
+
+li $v0, 1
+move $a0, $t4
+syscall
+
+li $v0, 1
+move $a0, $t5
+syscall
+
+li $v0, 4
+la $a0, promptSavingGame
+syscall
+b end
+# end save game
 
 Parlor:
 li $v0,4
@@ -173,6 +273,9 @@ li $v0,5
 syscall
 move $t0,$v0
 
+li $t7, 14
+addi $t6, $t0, -9
+bgezal $t6, SaveGame
 beq $t0, 1, Chair
 beq $t0, 2, Upstairs
 
@@ -193,6 +296,9 @@ li $v0,5
 syscall
 move $t0,$v0
 
+li $t7, 14
+addi $t6, $t0, -9
+bgezal $t6, SaveGame
 beq $t0, 1, Attack
 beq $t0, 2, Upstairs
 
@@ -225,6 +331,9 @@ li $v0,5
 syscall
 move $t0,$v0
 
+li $t7, 17
+addi $t6, $t0, -9
+bgezal $t6, SaveGame
 beq $t0, 1, ChairDeath
 beq $t0, 2, EatSomething 
 beq $t0, 3, Return
@@ -246,6 +355,9 @@ li $v0,5
 syscall
 move $t0,$v0
 
+li $t7, 14
+addi $t6, $t0, -9
+bgezal $t6, SaveGame
 beq $t0, 1, Parlor
 beq $t0, 2, DiningRoom
 beq $t0, 3, Upstairs
@@ -274,8 +386,11 @@ li $v0,5
 syscall
 move $t0,$v0
 
+li $t7, 14
+addi $t6, $t0, -9
+bgezal $t6, SaveGame
 beq $t0, 1, Parlor
-beq $t0, 2, Upstairs 
+beq $t0, 2, Upstairs
 
 Upstairs:
 li $v0,4
@@ -302,6 +417,9 @@ li $v0,5
 syscall
 move $t0,$v0
 
+li $t7, 20
+addi $t6, $t0, -9
+bgezal $t6, SaveGame
 beq $t0, 1, ThirdFloor
 beq $t0, 2, Bathroom
 beq $t0, 3, ChildsRoom
@@ -320,6 +438,9 @@ li $v0,5
 syscall
 move $t0,$v0
 
+li $t7, 11
+addi $t6, $t0, -9
+bgezal $t6, SaveGame
 beq $t0, 3, ThirdFloor
 beq $t0, 1, ChildsRoom
 beq $t0, 2, Playroom
@@ -366,6 +487,9 @@ li $v0,5
 syscall
 move $t0,$v0
 
+li $t7, 14
+addi $t6, $t0, -9
+bgezal $t6, SaveGame
 beq $t0, 3, Bathroom
 beq $t0, 2, ThirdFloor
 beq $t0, 1, Playroom
@@ -416,6 +540,9 @@ li $v0,5
 syscall
 move $t0,$v0
 
+li $t7, 17
+addi $t6, $t0, -9
+bgezal $t6, SaveGame
 beq $t0, 1, ClosedDoor
 beq $t0, 2, GuestRoom
 beq $t0, 3, MasterBedroom
@@ -448,6 +575,9 @@ li $v0,5
 syscall
 move $t0,$v0
 
+li $t7, 15
+addi $t6, $t0, -9
+bgezal $t6, SaveGame
 beq $t0, 2, GuestRoom
 beq $t0, 3, MasterBedroom
 
@@ -468,6 +598,9 @@ li $v0,5
 syscall
 move $t0,$v0
 
+li $t7, 14
+addi $t6, $t0, -9
+bgezal $t6, SaveGame
 beq $t0, 1, Mirror
 beq $t0, 2, NoMirror
 
@@ -514,6 +647,9 @@ li $v0,5
 syscall
 move $t0,$v0
 
+li $t7, 8
+addi $t6, $t0, -9
+bgezal $t6, SaveGame
 beq $t0, 1, usedMirror
 beq $t0, 2, usedProton
 beq $t0, 3, usedTeddy
