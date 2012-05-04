@@ -1,6 +1,8 @@
-#HW3 Problem 2
+#EECS 314 Final Project
 #Cale Harter
-
+#Wesley Gould
+#Elizabeth McNany
+#Devon McCullough
 
 .data
 
@@ -10,9 +12,6 @@ promptN:
 newline:
 	.asciiz "\n"
 	
-
-
-
 promptEntrance:
 		.asciiz "The last thing you remember, you were standing on the street and looking at the abandoned mansion on top of the hill.\n Then there was a blinding flash, and you now find yourself standing in the most spacious entry way you have ever seen.\n A six foot tall crystal chandelier hangs from the ceiling, and several sculptures stand atop pedestals around the room.\n Two grand staircases, each about six feet wide, wind their way up to the second floor.\n You see doors to your left and right, as well as one directly ahead of you between the two staircases.\n The double doors leading into the house loom behind you, and as you start towards them, you hear a lock snap shut.\n You hear a horrible wailing coming from the balcony above.\n" 
 promptEntranceChoice1:
