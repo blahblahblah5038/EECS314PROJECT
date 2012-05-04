@@ -7,8 +7,7 @@ enter_a_number_prompt: .asciiz "Please enter a number:\n"
 #see Marsaglia, George (July 2003). "Xorshift RNGs". Journal of Statistical Software Vol. 8 (Issue  14), or the wikipedia page for xorshift
 #puts a semirandom unsigned int into t8
 get_random_uint_in_t8:
-lw $t0, 0($s7)
-addi $t0, $t0, 12
+addi $t0, $s7, 0
 #t is $t8
 #t0+0 = z
 #t0+4 = y
@@ -51,7 +50,7 @@ li $v0, 4
 syscall
 
 #for i = 4; i>0; i--
-addi $t0, $zero, 4
+addi $t0, $zero, 3
 
 xorshift_seed_loop:
 
@@ -60,6 +59,7 @@ la $a0, enter_a_number_prompt
 li $v0, 4
 syscall
 li $v0, 5
+syscall
 
 addi $t8, $zero, 4
 mult $t8, $t0
@@ -75,10 +75,21 @@ addi $t0, $t0, -1
 
 
 #branch if less than 0
-blez $t0, xorshift_seed_loop
+bgez $t0, xorshift_seed_loop
+j $ra
+
+printranduint:
+addi $s3, $ra, 0
+jal get_random_uint_in_t8
+addi $v0, $zero, 1
+addi $a0, $t8, 0
+syscall
+addi $ra, $s3, 0
 j $ra
 
 main:
 jal xorshift_seed_function
+
+
 li $v0, 10
 syscall
