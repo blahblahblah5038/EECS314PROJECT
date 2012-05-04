@@ -8,6 +8,21 @@
 
 .data
 
+hanoi_print_state_msg: .asciiz "The puzzle looks like the following:\n"
+hanoi_done_msg: .asciiz "done\n"
+hanoi_newline: .asciiz "\n"
+hanoi_space: .asciiz " "
+hanoi_bar: .asciiz "|"
+hanoi_disk: .asciiz "_"
+hanoi_first_column_prompt: .asciiz "A voice in your head asks, 'Which column would you like to pick up a disk from?'\n1.Left\n2.Middle\n3.Right\n4.Quit\n"
+hanoi_second_column_prompt: .asciiz "The voice then asks, 'Which column would you like to put the disk onto?'\n1.Left\n2.Middle\n3.Right\n4.Quit\n"
+hanoi_error_msg: .asciiz "The strange voice says, 'An error occured in Towers of Hanoi game, executing test subject.', and then you die painlessly.\n"
+hanoi_success_msg:.asciiz "You finish the game only to see the pieces reset themselves exactly as they were before.\n"
+hanoi_rule_violation_msg: .asciiz "\nThe voice in your head says, 'That is an invalid move, try again.'\n\n"
+
+seeding_random_number_generator_prompt: .asciiz "Seeding the random number generator:\n"
+enter_a_number_prompt: .asciiz "Please enter a number:\n"
+
 promptN:
 	.asciiz "Please enter N:\n"
 
@@ -15,13 +30,17 @@ newline:
 	.asciiz "\n"
 	
 promptEntrance:
-		.asciiz "The last thing you remember, you were standing on the street and looking at the abandoned mansion on top of the hill.\n Then there was a blinding flash, and you now find yourself standing in the most spacious entry way you have ever seen.\n A six foot tall crystal chandelier hangs from the ceiling, and several sculptures stand atop pedestals around the room.\n Two grand staircases, each about six feet wide, wind their way up to the second floor.\n You see doors to your left and right, as well as one directly ahead of you between the two staircases.\n The double doors leading into the house loom behind you, and as you start towards them, you hear a lock snap shut.\n You hear a horrible wailing coming from the balcony above.\n" 
+		.asciiz "The last thing you remember, you were standing on the street and looking at the abandoned mansion on top of the hill.\n Then there was a blinding flash, and you now find yourself standing in the most spacious entry way you have ever seen.\n A six foot tall crystal chandelier hangs from the ceiling, and several sculptures stand atop pedestals around the room.\n Two grand staircases, each about six feet wide, wind their way up to the second floor.\n You see doors to your left and right, as well as one directly ahead of you between the two staircases.\n The double doors leading into the house loom behind you, and as you start towards them, you hear a lock snap shut.\n You hear a horrible wailing coming from the balcony above.\n Sitting on a table adjacent to you is a child's Towers of Hanoi puzzle\n" 
 promptEntranceChoice1:
 		.asciiz "To enter the parlor, type 1.\n"
 promptEntranceChoice2:
 		.asciiz "To enter the Dining Room, type 2.\n"
 promptEntranceChoice3:
 		.asciiz "To go upstairs, type 3.\n"
+promptEntranceHanoi:
+		.asciiz "To play with the Towers of Hanoi set, press 4.\n"
+promptPlayHanoi:
+		.asciiz "You are quite a strange person to be playing with logic puzzles at a time like this.\n"
 promptDining:
 		.asciiz "\nAs you enter the dining room, you are taken aback by what you see.\n Although this house is supposedly abandoned, there is a veritable feast laid before you on the massive table in the center of the room.\n Dozens of dishes are present, and each one looks more delicious than the last.\n In the center of the table is a massive turkey.\n While all of the places look as if they have just been set, a single chair has been pulled away from the table, as if it were expecting someone to sit down at any moment...\n"
 promptDiningChoice1:
@@ -118,8 +137,10 @@ promptAttackG:
 		.asciiz "To attack the ghost, enter 4.\n"
 promptMirror:
 		.asciiz "\n\"You dare bring that object to me!?\" the spirit yells, full of rage.\n She points at you, and you can feel yourself becoming chilled to the bone.\n You also get the sense that you are growing smaller and smaller.\n The mirror drops to the floor, and you look out into the room from the glass of your new, eternal prison.\n"
-promptProton:
+promptProtonSuccess:
 		.asciiz "\nYou point the proton gun you are carrying at the geist, and her screams become more panicked.\n The stream of protons undulates wildly, but the spirit is getting visibly weaker.\n You slide the trap beneath her, and her screams dwindle to nothing as she becomes trapped forever.\n Smiling you make your way out of the house and out into the street, and you don't even look back as the building fades into nothingness.\n"
+promptProtonFailure:
+		.asciiz "\nThe proton pack's battery explodes, killing you. You are trapped in the house forever as a ghost, destined to sing cliched 80's songs.\n"
 promptTeddyBear:
 		.asciiz "\nYou take out little girl's teddy bear and show it to the spirit.\n You explain to her that her children want her to stop scaring them.\n The spirit slowly approaches you, and takes the bear from your hand.\n Instantly, she starts shrinking until she is the size of a normal human.\n \"Thank you,\" she whispers, \"for I have forgotten my children. I hope that they can forgive me.\"\n With that the spirit disappears, and the cries that have been filling the house cease.\n You suddenly feel very lightheaded, and before you realize what's happening, you fall to the floor unconscious.\n You awaken on the sidewalk where you were standing earlier.\n As you look back at the mansion, you can see that there are no longer any lights on, and it looks as though the house has not been lived in for years.\n"
 promptAttackGhost:
@@ -142,8 +163,493 @@ saveGameFile:
 
 .text
 
-main:
+#xorshift random number generator
+#see Marsaglia, George (July 2003). "Xorshift RNGs". Journal of Statistical Software Vol. 8 (Issue  14), or the wikipedia page for xorshift
+#puts a semirandom unsigned int into t8
+get_random_uint_in_t8:
+addi $t0, $s7, 0
+#t is $t8
+#t0+0 = z
+#t0+4 = y
+#t0+8 = x
+#t0+12 = w
 
+#t = t8
+#temp1 = t7
+#temp2 = t8
+lw   $t7, 8($t0)
+sll  $t8, $t7, 11  #t = x<<11
+xor  $t8, $t7, $t8 #t = t^x
+lw 	 $t7, 4($t0)#x = y
+sw   $t7, 8($t0)
+lw   $t7, 0($t0)   #y = z
+sw   $t7, 4($t0)
+lw   $t7, 12($t0)#z = w
+sw   $t7, 0($t0)
+srl  $t7, $t8, 8   #t>>8
+xor  $t8, $t8, $t7 #t=^(t>>8)
+lw   $t6, 12($t0)
+srl  $t6, $t6, 19  #w>>19
+xor  $t7, $t6, $t7 #t=t^(w>>19)
+lw   $t6, 12($t0)
+xor  $t7, $t6, $t7 #t=t^w
+sw   $t7, 12($t0)
+addi $t8, $t7, 0
+j $ra
+
+#xorshift's seed
+xorshift_seed_function:
+addi $a0, $zero, 16 #sizeof(uint)*4
+li $v0, 9
+syscall
+
+addi $s7, $v0, 0 #record the locations of w,x,y,z
+
+la $a0, seeding_random_number_generator_prompt
+li $v0, 4
+syscall
+
+#for i = 4; i>0; i--
+addi $t0, $zero, 3
+
+xorshift_seed_loop:
+
+#read a number
+la $a0, enter_a_number_prompt
+li $v0, 4
+syscall
+li $v0, 5
+syscall
+
+addi $t8, $zero, 4
+mult $t8, $t0
+mflo $t8
+
+add $t8, $s7, $t8
+
+#store
+sw $v0, 0($t8)
+
+#i--
+addi $t0, $t0, -1
+
+
+#branch if less than 0
+bgez $t0, xorshift_seed_loop
+j $ra
+
+printranduint:
+addi $s3, $ra, 0
+jal get_random_uint_in_t8
+addi $v0, $zero, 1
+addi $a0, $t8, 0
+syscall
+addi $ra, $s3, 0
+j $ra
+
+
+towers_of_hanoi:
+
+#set initial position of the rings
+#  _|_     |      |
+# __|__    |      |
+#___|___   |      |
+
+#t9 = return pointer
+addi $t9, $ra, 0
+jal hanoi_set_init_state #initialize hanoi game
+#t0 will be 0 if still going, 1 if failure and 2 if success
+try_hanoi:
+jal hanoi_show
+jal hanoi_iteration  #let the user make a move
+#jal hanoi_print_state
+addi $t4, $zero, 0
+beq $t0, $t4, try_hanoi
+addi $ra, $t9, 0
+j $ra
+
+hanoi_print_newline:
+la $a0, hanoi_newline
+li $v0, 4
+syscall
+j $ra
+
+hanoi_print_space:
+la $a0, hanoi_space
+li $v0, 4
+syscall
+j $ra
+
+hanoi_print_bar:
+la $a0, hanoi_bar
+li $v0, 4
+syscall
+j $ra
+
+hanoi_print_disk:
+la $a0, hanoi_disk
+li $v0, 4
+syscall
+j $ra
+
+hanoi_test_and_print:
+addi $s6, $ra, 0
+#if $t5 = 1, then top bar
+addi $t4, $zero, 1
+bne $t5, $t4, hanoi_test_mid
+
+addi $t4, $zero, 1
+bne $t4,$t6, hanoi_test_top_center
+#if $t6 = 1 then left
+andi $t4, $t1, 4
+beq $t4, $zero, hanoi_test_empty
+j hanoi_test_confirm
+
+hanoi_test_top_center:
+#if $t6 = 2 then center
+addi $t4, $zero, 2
+bne $t4,$t6 hanoi_test_top_right
+andi $t4, $t2, 4
+beq $t4, $zero, hanoi_test_empty
+j hanoi_test_confirm
+
+hanoi_test_top_right:
+#else if $t6 = 3 then right
+addi $t4, $zero, 3
+bne $t4,$t6 hanoi_test_empty
+andi $t4, $t3, 4
+beq $t4, $zero, hanoi_test_empty
+j hanoi_test_confirm
+
+hanoi_test_mid:
+#if $t5 = 2, then mid bar
+addi $t4, $zero, 2
+bne $t5, $t4, hanoi_test_bot
+
+addi $t4, $zero, 1
+bne $t4,$t6, hanoi_test_mid_center
+#if $t6 = 1 then left
+andi $t4, $t1, 2
+beq $t4, $zero, hanoi_test_empty
+j hanoi_test_confirm
+
+hanoi_test_mid_center:
+#if $t6 = 2 then center
+addi $t4, $zero, 2
+bne $t4,$t6 hanoi_test_mid_right
+andi $t4, $t2, 2
+beq $t4, $zero, hanoi_test_empty
+j hanoi_test_confirm
+
+hanoi_test_mid_right:
+#else if $t6 = 3 then right
+addi $t4, $zero, 3
+bne $t4,$t6 hanoi_test_empty
+andi $t4, $t3, 2
+beq $t4, $zero, hanoi_test_empty
+j hanoi_test_confirm
+
+hanoi_test_bot:
+#if $t5 = 3, then bottom bar
+addi $t4, $zero, 3
+bne $t5, $t4, hanoi_test_mid
+
+addi $t4, $zero, 1
+bne $t4,$t6, hanoi_test_bot_center
+#if $t6 = 1 then left
+andi $t4, $t1, 1
+beq $t4, $zero, hanoi_test_empty
+j hanoi_test_confirm
+
+hanoi_test_bot_center:
+#if $t6 = 2 then center
+addi $t4, $zero, 2
+bne $t4,$t6 hanoi_test_bot_right
+andi $t4, $t2, 1
+beq $t4, $zero, hanoi_test_empty
+j hanoi_test_confirm
+
+hanoi_test_bot_right:
+#else if $t6 = 3 then right
+addi $t4, $zero, 3
+bne $t4,$t6 hanoi_test_empty
+andi $t4, $t3, 1
+beq $t4, $zero, hanoi_test_empty
+j hanoi_test_confirm
+
+hanoi_test_empty:
+jal hanoi_print_space
+j hanoi_done_test_and_print
+
+hanoi_test_confirm:
+jal hanoi_print_disk
+j hanoi_done_test_and_print
+
+hanoi_done_test_and_print:
+addi $ra, $s6, 0
+j $ra
+
+hanoi_show:
+addi $t8, $ra, 0
+addi $t5, $zero, 1
+addi $t6, $zero, 1
+jal hanoi_print_top_bar
+addi $t6, $zero, 2
+jal hanoi_print_top_bar
+addi $t6, $zero, 3
+jal hanoi_print_top_bar
+jal hanoi_print_newline
+addi $t5, $zero, 2
+addi $t6, $zero, 1
+jal hanoi_print_mid_bar
+addi $t6, $zero, 2
+jal hanoi_print_mid_bar
+addi $t6, $zero, 3
+jal hanoi_print_mid_bar
+jal hanoi_print_newline
+addi $t5, $zero, 3
+addi $t6, $zero, 1
+jal hanoi_print_bot_bar
+addi $t6, $zero, 2
+jal hanoi_print_bot_bar
+addi $t6, $zero, 3
+jal hanoi_print_bot_bar
+jal hanoi_print_newline
+addi $ra, $t8, 0
+j $ra
+
+hanoi_print_top_bar:
+addi $t7, $ra, 0
+jal hanoi_print_space
+jal hanoi_print_space
+jal hanoi_test_and_print
+jal hanoi_print_bar
+jal hanoi_test_and_print
+jal hanoi_print_space
+jal hanoi_print_space
+addi $ra, $t7, 0
+j $ra
+
+hanoi_print_mid_bar:
+addi $t7, $ra, 0
+jal hanoi_print_space
+jal hanoi_test_and_print
+jal hanoi_test_and_print
+jal hanoi_print_bar
+jal hanoi_test_and_print
+jal hanoi_test_and_print
+jal hanoi_print_space
+addi $ra, $t7, 0
+j $ra
+
+hanoi_print_bot_bar:
+addi $t7, $ra, 0
+jal hanoi_test_and_print
+jal hanoi_test_and_print
+jal hanoi_test_and_print
+jal hanoi_print_bar
+jal hanoi_test_and_print
+jal hanoi_test_and_print
+jal hanoi_test_and_print
+addi $ra, $t7, 0
+j $ra
+
+hanoi_set_init_state:
+addi $t1, $zero, 7
+addi $t2, $zero, 0
+addi $t3, $zero, 0
+j $ra
+
+hanoi_print_state:
+la $a0, hanoi_print_state_msg
+li $v0, 4
+syscall
+
+addi $a0, $t1, 0
+li $v0, 1
+syscall
+
+addi $a0, $t2, 0
+li $v0, 1
+syscall
+
+addi $a0, $t3, 0
+li $v0, 1
+syscall
+
+la $a0, hanoi_newline
+li $v0, 4
+syscall
+j $ra
+
+hanoi_iteration:
+
+addi $t8, $ra, 0
+la $a0, hanoi_first_column_prompt
+li $v0, 4
+syscall
+
+li $v0, 5
+syscall
+
+addi $t5, $v0, 0
+addi $t4, $zero, 4
+beq $t4, $t5, hanoi_iteration_quit
+addi $t4, $zero, 3
+bne $t4, $t5, hanoi_iteration_try_2
+addi $s5, $t3, 0
+j hanoi_iteration_test_bar1
+
+hanoi_iteration_try_2: 
+addi $t4, $zero, 2
+bne $t4, $t5, hanoi_iteration_try_3
+addi $s5, $t2, 0
+j hanoi_iteration_test_bar1
+
+hanoi_iteration_try_3: 
+addi $t4, $zero, 1
+bne $t4, $t5, hanoi_iteration_error
+addi $s5, $t1, 0
+j hanoi_iteration_test_bar1
+
+hanoi_iteration_test_bar1:
+addi $t4, $zero, 0
+beq $t4, $s5, hanoi_rule_violation
+
+la $a0, hanoi_second_column_prompt
+li $v0, 4
+syscall
+
+li $v0, 5
+syscall
+
+addi $t6, $v0, 0
+addi $t4, $zero, 4
+beq $t4, $t6, hanoi_iteration_quit
+addi $t4, $zero, 3
+bne $t6, $t4, hanoi_iteration_try_2_2
+addi $s6, $t3, 0
+j hanoi_iteration_test_bar2
+
+hanoi_iteration_try_2_2: 
+addi $t4, $zero, 2
+bne $t6, $t4, hanoi_iteration_try_3_2
+addi $s6, $t2, 0
+j hanoi_iteration_test_bar2
+
+hanoi_iteration_try_3_2: 
+addi $t4, $zero, 1
+bne $t6, $t4, hanoi_iteration_error
+addi $s6, $t1, 0
+j hanoi_iteration_test_bar2
+
+hanoi_iteration_test_bar2:
+#addi $t4, $zero, 0
+#beq $t4, $s6, hanoi_rule_violation
+
+sub $t4, $s5, $s6
+blez $t4, hanoi_rule_violation
+
+andi $t4, $s5, 4
+bgtz $t4, hanoi_bit_found
+andi $t4, $s5, 2
+bgtz $t4, hanoi_bit_found
+andi $t4, $s5, 1
+bgtz $t4, hanoi_bit_found
+j hanoi_iteration_error
+
+hanoi_bit_found:
+xor $s5, $s5, $t4
+or $s6, $s6, $t4
+
+addi $t4, $zero, 3
+bne $t4, $t6, hanoi_try_apply_d2
+addi $t3, $s6, 0
+j hanoi_assigned_move
+
+hanoi_try_apply_d2:
+addi $t4, $zero, 2
+bne $t4, $t6, hanoi_try_apply_d1
+addi $t2, $s6, 0
+j hanoi_assigned_move
+
+hanoi_try_apply_d1:
+addi $t4, $zero, 1
+bne $t4, $t6, hanoi_iteration_error
+addi $t1, $s6, 0
+j hanoi_assigned_move
+
+hanoi_assigned_move:
+addi $t4, $zero, 3
+bne $t4, $t5, hanoi_try_unapply_d2
+addi $t3, $s5, 0
+j hanoi_unassigned_move
+
+hanoi_try_unapply_d2:
+addi $t4, $zero, 2
+bne $t4, $t5, hanoi_try_unapply_d1
+addi $t2, $s5, 0
+j hanoi_unassigned_move
+
+hanoi_try_unapply_d1:
+addi $t4, $zero, 1
+bne $t4, $t5, hanoi_iteration_error
+addi $t1, $s5, 0
+j hanoi_unassigned_move
+
+hanoi_unassigned_move:
+addi $t4, $zero, 0
+bne $t1, $t4, hanoi_next_iteration
+bne $t2, $t4, hanoi_next_iteration
+addi $t4, $zero, 7
+bne $t3, $t4, hanoi_next_iteration
+j hanoi_success
+
+hanoi_iteration_error:
+la $a0, hanoi_error_msg
+li $v0, 4
+syscall
+addi $t0, $zero, 0
+j hanoi_iteration_quit
+
+hanoi_success:
+la $a0, hanoi_success_msg
+li $v0, 4
+syscall
+addi $t0, $zero, 2
+addi $ra, $t8, 0
+j $ra
+
+hanoi_iteration_quit:
+addi $t0, $zero, 1
+addi $ra, $t8, 0
+j $ra
+
+hanoi_rule_violation:
+la $a0, hanoi_rule_violation_msg
+li $v0, 4
+syscall
+addi $t0, $zero, 0
+addi $ra, $t8, 0
+j $ra
+
+hanoi_next_iteration:
+addi $t0, $zero, 0
+addi $ra, $t8, 0
+j $ra
+
+
+main:
+#seed rng and bury the first few results
+jal xorshift_seed_function
+
+addi $t4, $zero, 8000
+buryLoop:
+jal get_random_uint_in_t8
+addi $t4, $t4, -1
+bgtz $t4, buryLoop
+
+EntranceStart:
 
 li $v0,4
 la $a0, promptGameInstr
@@ -165,6 +671,10 @@ li $v0,4
 la $a0, promptEntranceChoice3
 syscall
 
+li $v0, 4
+la $a0, promptEntranceHanoi
+syscall
+
 li $v0,5
 syscall
 move $t0,$v0
@@ -172,7 +682,12 @@ move $t0,$v0
 beq $t0, 1, Parlor
 beq $t0, 2, DiningRoom
 beq $t0, 3, Upstairs
+beq $t0, 4, callHanoi
 beq $t0, 8, LoadGame
+
+callHanoi:
+jal towers_of_hanoi
+j EntranceStart
 
 # may want to move this
 LoadGame:
@@ -663,10 +1178,23 @@ syscall
 b end
 
 usedProton:
-li $v0,4
-la $a0, promptProton
-syscall
+jal get_random_uint_in_t8
 
+addi $t7, $zero, 2
+div $t8, $t7
+mfhi $t8
+blez $t8, protonFail
+
+protonSuccess:
+li $v0,4
+la $a0, promptProtonSuccess
+syscall
+b end
+
+protonFail:
+li $v0,4
+la $a0, promptProtonFailure
+syscall
 b end
 
 usedTeddy:
